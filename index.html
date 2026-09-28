@@ -1,0 +1,1685 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#0D9488" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Aditi Stock" />
+<title>Aditi Enterprises — Stock Manager</title>
+<link id="pwa-manifest" rel="manifest" />
+<style>
+  :root{
+    --bg:#F7F9FC; --bg-2:#EEF2F7; --panel:#FFFFFF; --ink:#0F172A; --ink-2:#334155; --muted:#64748B;
+    --line:#E2E8F0; --line-2:#CBD5E1; --good:#10B981; --bad:#EF4444; --warn:#F59E0B;
+    --a-inv:#0D9488; --a-inv-bg:#CCFBF1;
+    --a-his:#D97706; --a-his-bg:#FEF3C7;
+    --a-stf:#7C3AED; --a-stf-bg:#EDE9FE;
+    --a-att:#059669; --a-att-bg:#D1FAE5;
+    --a-req:#E11D48; --a-req-bg:#FFE4E6;
+    --a-sch:#0284C7; --a-sch-bg:#E0F2FE;
+    --a-not:#EA580C; --a-not-bg:#FFEDD5;
+    --a-exp:#475569; --a-exp-bg:#E2E8F0;
+    --radius:14px; --shadow:0 6px 20px rgba(15,23,42,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  button,input,select,textarea{font:inherit;color:inherit}
+  .app{min-height:100vh;display:flex;flex-direction:column}
+  header.top{position:sticky;top:0;z-index:30;background:linear-gradient(135deg,#0D9488 0%, #0EA5E9 100%);color:#fff;padding:14px 18px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  header.top .logo{font-weight:800;letter-spacing:.2px;font-size:18px;display:flex;align-items:center;gap:8px}
+  header.top .logo .dot{width:26px;height:26px;border-radius:8px;background:rgba(255,255,255,.2);display:inline-flex;align-items:center;justify-content:center;font-weight:900}
+  header.top .meta{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.18);font-size:12px;font-weight:600}
+  .btn{appearance:none;border:0;background:var(--ink);color:#fff;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:700;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:transform .05s ease, opacity .2s ease}
+  .btn:active{transform:translateY(1px)}
+  .btn.ghost{background:transparent;color:inherit;border:1px solid var(--line-2)}
+  .btn.primary{background:linear-gradient(135deg,#0D9488,#0EA5E9)}
+  .btn.teal{background:var(--a-inv);color:#fff}
+  .btn.amber{background:var(--a-his);color:#fff}
+  .btn.violet{background:var(--a-stf);color:#fff}
+  .btn.emerald{background:var(--a-att);color:#fff}
+  .btn.rose{background:var(--a-req);color:#fff}
+  .btn.sky{background:var(--a-sch);color:#fff}
+  .btn.orange{background:var(--a-not);color:#fff}
+  .btn.slate{background:var(--a-exp);color:#fff}
+  .btn.danger{background:var(--bad)}
+  .btn.good{background:var(--good)}
+  .btn.warn{background:var(--warn)}
+  .btn.small{padding:6px 10px;min-height:34px;font-size:13px;border-radius:8px}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+
+  nav.tabs{position:sticky;top:58px;z-index:25;background:#fff;border-bottom:1px solid var(--line);padding:6px 10px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+  nav.tabs::-webkit-scrollbar{display:none}
+  nav.tabs button{appearance:none;border:0;background:transparent;padding:10px 14px;border-radius:10px;font-weight:700;color:var(--ink-2);min-width:100px;white-space:nowrap;cursor:pointer;min-height:44px;transition:background .15s}
+  nav.tabs button .ico{display:inline-block;margin-right:6px}
+  nav.tabs button.active{background:var(--ink);color:#fff}
+  nav.tabs button[data-tab="inventory"].active{background:var(--a-inv)}
+  nav.tabs button[data-tab="history"].active{background:var(--a-his)}
+  nav.tabs button[data-tab="staff"].active{background:var(--a-stf)}
+  nav.tabs button[data-tab="attendance"].active{background:var(--a-att)}
+  nav.tabs button[data-tab="requirement"].active{background:var(--a-req)}
+  nav.tabs button[data-tab="schedule"].active{background:var(--a-sch)}
+  nav.tabs button[data-tab="notice"].active{background:var(--a-not)}
+  nav.tabs button[data-tab="export"].active{background:var(--a-exp)}
+
+  main{flex:1;padding:16px;max-width:1400px;width:100%;margin:0 auto}
+  .section-head{display:flex;align-items:center;gap:12px;margin:4px 2px 14px;flex-wrap:wrap}
+  .bar{width:6px;height:28px;border-radius:4px}
+  .bar.inv{background:var(--a-inv)} .bar.his{background:var(--a-his)} .bar.stf{background:var(--a-stf)}
+  .bar.att{background:var(--a-att)} .bar.req{background:var(--a-req)} .bar.sch{background:var(--a-sch)}
+  .bar.not{background:var(--a-not)} .bar.exp{background:var(--a-exp)}
+  .section-head h2{margin:0;font-size:20px}
+  .section-head .sub{color:var(--muted);font-size:13px;margin-left:auto}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:14px}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .row > *{flex:1 1 180px}
+  .field{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+  .field label{font-size:12px;font-weight:700;color:var(--ink-2)}
+  .field input,.field select,.field textarea{appearance:none;border:1px solid var(--line-2);background:#fff;border-radius:10px;padding:10px 12px;min-height:44px;outline:none;transition:border-color .15s, box-shadow .15s}
+  .field input:focus,.field select:focus,.field textarea:focus{border-color:#0D9488;box-shadow:0 0 0 3px rgba(13,148,136,.15)}
+  .field .err{color:var(--bad);font-size:12px;min-height:14px}
+  .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .card::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:var(--a-inv);opacity:.85}
+  .card.his::before{background:var(--a-his)}
+  .card.stf::before{background:var(--a-stf)}
+  .card.att::before{background:var(--a-att)}
+  .card.req::before{background:var(--a-req)}
+  .card.sch::before{background:var(--a-sch)}
+  .card.not::before{background:var(--a-not)}
+  .card.exp::before{background:var(--a-exp)}
+  .card h3{margin:0 0 6px;font-size:15px}
+  .pill{display:inline-flex;align-items:center;padding:4px 10px;border-radius:999px;font-weight:700;font-size:12px}
+  .pill.teal{background:var(--a-inv-bg);color:var(--a-inv)}
+  .pill.amber{background:var(--a-his-bg);color:var(--a-his)}
+  .pill.violet{background:var(--a-stf-bg);color:var(--a-stf)}
+  .pill.emerald{background:var(--a-att-bg);color:var(--a-att)}
+  .pill.rose{background:var(--a-req-bg);color:var(--a-req)}
+  .pill.sky{background:var(--a-sch-bg);color:var(--a-sch)}
+  .pill.orange{background:var(--a-not-bg);color:var(--a-not)}
+  .pill.slate{background:var(--a-exp-bg);color:var(--a-exp)}
+  .pill.bad{background:#FEE2E2;color:#991B1B}
+  .pill.good{background:#D1FAE5;color:#065F46}
+  .pill.warn{background:#FEF3C7;color:#92400E}
+  .muted{color:var(--muted);font-size:12px}
+  .spacer{height:8px}
+  .tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .tools .grow{flex:1 1 auto;min-width:200px}
+  .search-wrap{position:relative}
+  .suggest{position:absolute;left:0;right:0;top:calc(100% + 2px);background:#fff;border:1px solid var(--line-2);border-radius:10px;z-index:20;max-height:220px;overflow:auto;box-shadow:var(--shadow)}
+  .suggest .i{padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--line)}
+  .suggest .i:last-child{border-bottom:0}
+  .suggest .i:hover,.suggest .i.on{background:var(--bg-2)}
+  .suggest .i .code{font-weight:800;color:var(--a-inv)}
+  .suggest .i .nm{margin-left:8px;color:var(--ink-2)}
+  .actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+  .actions .btn{flex:1}
+  table{width:100%;border-collapse:separate;border-spacing:0;font-size:13px}
+  table th,table td{padding:10px 8px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+  table th{background:var(--bg-2);color:var(--ink-2);font-weight:800}
+  table tr:last-child td{border-bottom:0}
+  .scroll{overflow:auto;max-width:100%;-webkit-overflow-scrolling:touch}
+  .tag{display:inline-block;padding:2px 8px;border-radius:6px;font-weight:700;font-size:11px;margin-right:4px}
+  .tag.in{background:#D1FAE5;color:#065F46}.tag.out{background:#FEE2E2;color:#991B1B}
+
+  /* Login/Setup screens */
+  .auth-wrap{min-height:100vh;background:radial-gradient(1200px 600px at 20% -10%, #CCFBF1 0%, transparent 60%),
+                           radial-gradient(1000px 500px at 110% 10%, #E0F2FE 0%, transparent 60%),
+                           radial-gradient(800px 500px at 50% 120%, #EDE9FE 0%, transparent 60%), var(--bg);
+             display:flex;align-items:center;justify-content:center;padding:20px}
+  .auth-card{width:100%;max-width:440px;background:#fff;border-radius:20px;box-shadow:0 30px 60px rgba(15,23,42,.12);padding:26px;border:1px solid var(--line)}
+  .auth-card h1{margin:0 0 6px;font-size:24px;background:linear-gradient(135deg,#0D9488,#0EA5E9);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .tabs2{display:flex;gap:6px;background:var(--bg-2);padding:4px;border-radius:12px;margin:16px 0}
+  .tabs2 button{flex:1;border:0;background:transparent;padding:10px;border-radius:10px;font-weight:800;cursor:pointer;min-height:44px;color:var(--ink-2)}
+  .tabs2 button.on{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.06)}
+
+  /* Modal */
+  .mask{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:80;display:none;align-items:center;justify-content:center;padding:14px}
+  .mask.on{display:flex}
+  .dialog{background:#fff;border-radius:16px;width:100%;max-width:560px;max-height:90vh;overflow:auto;padding:18px;box-shadow:0 30px 80px rgba(0,0,0,.2)}
+  .dialog h3{margin:0 0 4px}
+  .dialog .head{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+  .dialog .close{margin-left:auto;border:0;background:transparent;cursor:pointer;font-size:22px;color:var(--muted)}
+
+  /* Toast */
+  .toasts{position:fixed;right:14px;bottom:14px;z-index:99;display:flex;flex-direction:column;gap:8px;max-width:calc(100vw - 28px)}
+  .toast{background:#0F172A;color:#fff;padding:12px 14px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.2);font-weight:600;font-size:13px;animation:pop .2s ease}
+  .toast.good{background:#065F46}.toast.bad{background:#991B1B}.toast.warn{background:#92400E}
+  @keyframes pop{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
+
+  /* Attendance */
+  .att-grid{display:grid;grid-template-columns:minmax(160px,1fr) 1fr 1fr 1fr 2fr auto;gap:8px 12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+  .att-grid.header{font-weight:800;color:var(--ink-2);background:var(--bg-2);border-radius:10px;padding:10px 8px}
+  .att-grid:last-child{border-bottom:0}
+  @media (max-width:720px){
+    .att-grid{grid-template-columns:1fr 1fr;gap:6px}
+    .att-grid.header{display:none}
+  }
+  .empty{padding:28px;text-align:center;color:var(--muted);border:1px dashed var(--line-2);border-radius:14px;margin-bottom:12px}
+  .details>summary{cursor:pointer;font-weight:700;padding:10px 0;outline:none}
+  .kbd{background:#F1F5F9;border:1px solid var(--line-2);border-radius:6px;padding:2px 6px;font-size:12px;font-family:ui-monospace,Menlo,Consolas,monospace}
+  .hr{height:1px;background:var(--line);margin:14px 0}
+  .fs-12{font-size:12px}
+  .req-card.prio-low{border-left:6px solid #10B981}
+  .req-card.prio-med{border-left:6px solid #F59E0B}
+  .req-card.prio-high{border-left:6px solid #EF4444}
+  .sch-card.done{opacity:.85}
+  .sch-card.done h3::after{content:" ✓";color:var(--good)}
+  .notice-card{border-left:6px solid var(--a-not)}
+  .notice-card.prio-low{border-left-color:#10B981}
+  .notice-card.prio-med{border-left-color:#0284C7}
+  .notice-card.prio-high{border-left-color:#EF4444;background:linear-gradient(180deg,#FEF2F2, #fff)}
+  .switch{position:relative;display:inline-flex;align-items:center;gap:8px;min-height:44px;user-select:none;cursor:pointer;font-weight:700;font-size:13px;color:var(--ink-2)}
+  .switch input{position:absolute;opacity:0;inset:0;cursor:pointer}
+  .switch .s{width:42px;height:24px;border-radius:999px;background:#CBD5E1;position:relative;transition:background .15s}
+  .switch .s::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .15s}
+  .switch input:checked + .s{background:#10B981}
+  .switch input:checked + .s::after{left:20px}
+  @media (max-width:520px){
+    header.top .meta{width:100%;justify-content:space-between}
+    nav.tabs{top:110px}
+    main{padding:12px}
+    .section-head h2{font-size:18px}
+  }
+  .install-btn{display:none}
+</style>
+</head>
+<body>
+
+<div id="toasts" class="toasts" aria-live="polite"></div>
+
+<div id="auth" class="auth-wrap" style="display:none">
+  <div class="auth-card">
+    <div class="logo" style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+      <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#0D9488,#0EA5E9);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900">A</div>
+      <div>
+        <h1 style="margin:0">Aditi Enterprises</h1>
+        <div class="muted">Stock Manager & Operations</div>
+      </div>
+    </div>
+    <div id="tabsAuth" class="tabs2">
+      <button data-t="setup" class="on">Setup Store</button>
+      <button data-t="login">Login</button>
+    </div>
+
+    <!-- SETUP -->
+    <form id="setupForm">
+      <div class="field">
+        <label>Store ID (unique, shareable across devices)</label>
+        <input name="storeId" placeholder="e.g. ADITI-MAIN-01" required maxlength="40" />
+        <div class="muted fs-12">Tip: Use your business short name + branch. Same Store ID syncs inventory across devices.</div>
+        <div class="err" data-err="storeId"></div>
+      </div>
+      <div class="hr"></div>
+      <div class="field">
+        <label>Manager — Full Name</label>
+        <input name="mgrName" placeholder="Manager name" required maxlength="60" />
+        <div class="err" data-err="mgrName"></div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Manager Username</label>
+          <input name="mgrUser" placeholder="username" required minlength="3" maxlength="32" />
+          <div class="err" data-err="mgrUser"></div>
+        </div>
+        <div class="field">
+          <label>Manager Password</label>
+          <input type="password" name="mgrPass" placeholder="at least 4 chars" required minlength="4" />
+          <div class="err" data-err="mgrPass"></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Confirm Password</label>
+        <input type="password" name="mgrPass2" required minlength="4" />
+        <div class="err" data-err="mgrPass2"></div>
+      </div>
+      <button class="btn primary" style="width:100%" type="submit">Create Store & Manager Account</button>
+      <div class="muted fs-12" style="margin-top:10px;text-align:center">After setup, log in using the same Store ID + credentials. Every app open will start on Login.</div>
+    </form>
+
+    <!-- LOGIN -->
+    <form id="loginForm" style="display:none">
+      <div class="field">
+        <label>Store ID</label>
+        <select name="storeId" id="loginStoreId">
+          <option value="">-- choose or type a Store ID --</option>
+        </select>
+        <div class="muted fs-12">Or type/paste it if shared via link.</div>
+        <div class="err" data-err="storeId"></div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Username</label>
+          <input name="username" placeholder="manager or staff username" required minlength="3" />
+          <div class="err" data-err="username"></div>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" name="password" placeholder="password" required minlength="4" />
+          <div class="err" data-err="password"></div>
+        </div>
+      </div>
+      <button class="btn primary" style="width:100%" type="submit">Sign In</button>
+      <div class="muted fs-12" style="margin-top:10px;text-align:center">Security: App never keeps you signed in across reloads.</div>
+    </form>
+  </div>
+</div>
+
+<div id="app" class="app" style="display:none">
+  <header class="top">
+    <div class="logo"><span class="dot">A</span><span>Aditi Stock Manager</span></div>
+    <div class="meta">
+      <span class="chip" id="chipStore">Store: —</span>
+      <span class="chip" id="chipUser">Role: —</span>
+      <button class="btn small ghost install-btn" id="btnInstall" title="Install as app">⬇ Install</button>
+      <button class="btn small ghost" id="btnShare" title="Share Store link">↗ Share</button>
+      <button class="btn small ghost" id="btnLogout">⎋ Sign Out</button>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button data-tab="inventory" class="active"><span class="ico">📦</span>Inventory</button>
+    <button data-tab="history"><span class="ico">📜</span>History</button>
+    <button data-tab="staff"><span class="ico">👥</span>Staff</button>
+    <button data-tab="attendance"><span class="ico">🕘</span>Attendance</button>
+    <button data-tab="requirement"><span class="ico">📝</span>Requirement</button>
+    <button data-tab="schedule"><span class="ico">🗓</span>Schedule</button>
+    <button data-tab="notice"><span class="ico">📢</span>Notice Board</button>
+    <button data-tab="export"><span class="ico">📊</span>Export</button>
+  </nav>
+
+  <main>
+    <!-- INVENTORY -->
+    <section id="tab-inventory" class="tab">
+      <div class="section-head">
+        <div class="bar inv"></div><h2>Inventory</h2>
+        <div class="sub">Manage parts, categories and live stock adjustments</div>
+      </div>
+      <div class="panel">
+        <div class="tools">
+          <div class="field grow" style="margin:0;position:relative">
+            <input id="invSearch" placeholder="🔎 Search by part code or name… (type for suggestions)" autocomplete="off" />
+            <div class="suggest" id="invSuggest"></div>
+          </div>
+          <div class="field" style="margin:0;min-width:200px">
+            <select id="invCatFilter">
+              <option value="">All Categories</option>
+            </select>
+          </div>
+          <button class="btn teal" id="btnNewPart">+ New Part</button>
+          <button class="btn violet" id="btnCatMgr" data-mgr>🗂 Manage Categories</button>
+        </div>
+      </div>
+      <div id="partsGrid" class="grid"></div>
+    </section>
+
+    <!-- HISTORY -->
+    <section id="tab-history" class="tab" style="display:none">
+      <div class="section-head">
+        <div class="bar his"></div><h2>Stock History</h2>
+        <div class="sub">Complete audit log of every inward/outward adjustment</div>
+      </div>
+      <div class="panel">
+        <div class="row">
+          <div class="field" style="margin:0"><input id="hisSearch" placeholder="Search part / code" /></div>
+          <div class="field" style="margin:0"><input id="hisOp" placeholder="Search operator" /></div>
+          <div class="field" style="margin:0"><input type="date" id="hisFrom" /></div>
+          <div class="field" style="margin:0"><input type="date" id="hisTo" /></div>
+          <div style="align-self:center"><button class="btn amber small" id="hisReset">Reset</button></div>
+        </div>
+      </div>
+      <div class="panel"><div class="scroll"><table id="hisTable">
+        <thead><tr><th>Timestamp</th><th>Part</th><th>Operator</th><th>Direction</th><th>Qty</th><th>Remarks</th></tr></thead>
+        <tbody></tbody>
+      </table></div></div>
+    </section>
+
+    <!-- STAFF -->
+    <section id="tab-staff" class="tab" style="display:none">
+      <div class="section-head">
+        <div class="bar stf"></div><h2>Staff Accounts</h2>
+        <div class="sub">Manager-only: create, edit and disable staff logins</div>
+      </div>
+      <div class="panel tools"><div class="muted" id="staffIntro">Loading…</div>
+        <button class="btn violet" id="btnNewStaff" data-mgr style="margin-left:auto">+ Add Staff</button>
+      </div>
+      <div class="panel"><div class="scroll"><table id="staffTable">
+        <thead><tr><th>Username</th><th>Full Name</th><th>Role</th><th>Created</th><th>Actions</th></tr></thead>
+        <tbody></tbody>
+      </table></div></div>
+    </section>
+
+    <!-- ATTENDANCE -->
+    <section id="tab-attendance" class="tab" style="display:none">
+      <div class="section-head">
+        <div class="bar att"></div><h2>Attendance</h2>
+        <div class="sub">Punch in/out tracking with Staff & Labour rosters</div>
+      </div>
+      <div class="panel">
+        <div class="tabs2" id="attTabs">
+          <button class="on" data-sub="labour">Labour Attendance</button>
+          <button data-sub="staff" data-mgr>Staff Attendance</button>
+        </div>
+        <div class="row" style="margin-top:6px">
+          <div class="field" style="margin:0"><input type="date" id="attDate" /></div>
+          <div class="field" style="margin:0"><button class="btn emerald" id="btnAddPerson">+ Add Person</button></div>
+        </div>
+      </div>
+      <div class="panel" id="attPanel">
+        <div id="attRoster"></div>
+      </div>
+    </section>
+
+    <!-- REQUIREMENT -->
+    <section id="tab-requirement" class="tab" style="display:none">
+      <div class="section-head">
+        <div class="bar req"></div><h2>Requirements</h2>
+        <div class="sub">Anyone can post — staff, managers or unregistered visitors</div>
+      </div>
+      <div class="panel">
+        <form id="reqForm">
+          <div class="row">
+            <div class="field"><label>Title</label><input name="title" required maxlength="120" placeholder="e.g. Need more hex bolts" /></div>
+            <div class="field"><label>Item &amp; Qty</label><input name="item" placeholder="M8 x 25 bolt — 200 pcs" /></div>
+            <div class="field"><label>Priority</label>
+              <select name="prio"><option value="low">Low</option><option value="med" selected>Medium</option><option value="high">High</option></select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="field"><label>Posted By</label><input id="reqBy" name="by" required maxlength="60" placeholder="Your name" /></div>
+            <div class="field"><label>Date</label><input type="date" name="date" /></div>
+          </div>
+          <div class="field"><label>Description</label><textarea name="desc" rows="3" placeholder="Details, links, specs…"></textarea></div>
+          <button class="btn rose" type="submit">Post Requirement</button>
+        </form>
+      </div>
+      <div id="reqList" class="grid"></div>
+    </section>
+
+    <!-- SCHEDULE -->
+    <section id="tab-schedule" class="tab" style="display:none">
+      <div class="section-head">
+        <div class="bar sch"></div><h2>Schedule</h2>
+        <div class="sub">Item procurement / delivery schedule with completion status</div>
+      </div>
+      <div class="panel">
+        <form id="schForm">
+          <div class="row">
+            <div class="field"><label>Item</label><input name="item" required placeholder="e.g. Ball Bearing 6202" /></div>
+            <div class="field"><label>Qty Required</label><input name="qty" type="number" min="0" step="any" required /></div>
+            <div class="field"><label>Schedule Date</label><input type="date" name="date" required /></div>
+          </div>
+          <div class="row">
+            <div class="field"><label>Assigned To</label><input name="asg" placeholder="Name or team" /></div>
+            <div class="field" style="flex:2 1 60%"><label>Notes</label><input name="notes" placeholder="Vendor, PO, delivery window…" /></div>
+          </div>
+          <button class="btn sky" type="submit">Create Schedule</button>
+        </form>
+      </div>
+      <div class="panel">
+        <div class="row">
+          <div class="field" style="margin:0"><input id="schSearch" placeholder="Search item or assigned" /></div>
+          <div class="field" style="margin:0"><select id="schStatus"><option value="">All statuses</option><option value="0">Not Completed</option><option value="1">Completed</option></select></div>
+          <div class="field" style="margin:0"><input type="date" id="schDate" /></div>
+        </div>
+      </div>
+      <div id="schList" class="grid"></div>
+    </section>
+
+    <!-- NOTICE -->
+    <section id="tab-notice" class="tab" style="display:none">
+      <div class="section-head">
+        <div class="bar not"></div><h2>Notice Board</h2>
+        <div class="sub">Important announcements — Managers can post; everyone views</div>
+      </div>
+      <div class="panel" id="noticeMgr" style="display:none">
+        <form id="noticeForm">
+          <div class="row">
+            <div class="field" style="flex:2"><label>Title</label><input name="title" required maxlength="140" /></div>
+            <div class="field"><label>Priority</label>
+              <select name="prio"><option value="low">Low</option><option value="med" selected>Normal</option><option value="high">High</option></select>
+            </div>
+            <div class="field"><label>Date</label><input type="date" name="date" /></div>
+          </div>
+          <div class="field"><label>Body</label><textarea name="body" rows="3" required></textarea></div>
+          <button class="btn orange" type="submit">Post Notice</button>
+        </form>
+      </div>
+      <div id="noticeList" class="grid"></div>
+    </section>
+
+    <!-- EXPORT -->
+    <section id="tab-export" class="tab" style="display:none">
+      <div class="section-head">
+        <div class="bar exp"></div><h2>Export &amp; Share</h2>
+        <div class="sub">Download CSV reports for Excel and share this Store with your team</div>
+      </div>
+      <div class="panel">
+        <h3 style="margin:2px 0 10px">📊 Reports</h3>
+        <div class="row">
+          <button class="btn teal" id="expInv">⬇ Inventory CSV</button>
+          <button class="btn amber" id="expHis">⬇ Stock History CSV</button>
+          <button class="btn emerald" id="expAtt">⬇ Attendance CSV</button>
+          <button class="btn slate" id="expAll">⬇ Export All (3 CSVs)</button>
+        </div>
+      </div>
+      <div class="panel">
+        <h3 style="margin:2px 0 10px">↗ Share Store</h3>
+        <div class="row">
+          <button class="btn good" id="shareWA">Share via WhatsApp</button>
+          <button class="btn primary" id="shareNative">Native Share</button>
+          <button class="btn ghost" id="shareCopy">Copy Link</button>
+        </div>
+        <div class="muted fs-12" style="margin-top:10px">
+          Sharing link: <span id="shareLink" class="kbd"></span>
+        </div>
+      </div>
+      <div class="panel">
+        <details class="details">
+          <summary>🌐 Hosting &amp; Installation Instructions</summary>
+          <div class="hr"></div>
+          <ol>
+            <li><b>Local run (any device):</b> open <span class="kbd">index.html</span> directly in Chrome/Edge/Safari.</li>
+            <li><b>Install as app (PWA):</b> on mobile use "Add to Home Screen"; on desktop click <b>⬇ Install</b> in header. Use HTTPS for full install support.</li>
+            <li><b>Simple hosting options:</b>
+              <ul>
+                <li><b>GitHub Pages:</b> push <span class="kbd">index.html</span> to a repo and enable Pages in repo settings → URL is ready to share.</li>
+                <li><b>Netlify Drop:</b> visit <span class="kbd">app.netlify.com/drop</span> and drop the file — instant HTTPS URL.</li>
+                <li><b>Local server:</b> in this folder run <span class="kbd">python -m http.server 8000</span> then open <span class="kbd">http://localhost:8000</span>.</li>
+              </ul>
+            </li>
+            <li><b>Cross-device sync:</b> open the hosted URL on every device, enter the <b>same Store ID</b>, and log in. Use the ↗ Share button to send the URL to your team.</li>
+            <li><b>Cloud sync (optional, future):</b> out-of-the-box uses device LocalStorage. For true multi-device sync, host and optionally add Firebase (stubs included in app source).</li>
+          </ol>
+        </details>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- Modals -->
+<div class="mask" id="modal"><div class="dialog">
+  <div class="head"><div class="bar" id="mdBar"></div><h3 id="mdTitle">—</h3><button class="close" id="mdClose">✕</button></div>
+  <div id="mdBody"></div>
+</div></div>
+
+<script>
+/* =========================================================
+   Aditi Enterprises Stock Manager — Single-file PWA
+   Modules: Utils, DataStore, Auth, UI (tabs), Inventory,
+            History, Staff, Attendance, Requirement, Schedule,
+            Notice, Export/Share, PWA + cross-tab sync.
+   ========================================================= */
+
+/* ---------- Utils ---------- */
+const $ = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>Array.from(r.querySelectorAll(s));
+const uid = (p='id')=> p+'_'+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4);
+const fmtDT = (t)=>{ const d=new Date(t); return d.toLocaleString(undefined,{year:'numeric',month:'short',day:'2-digit',hour:'2-digit',minute:'2-digit'}); };
+const fmtD = (t)=>{ const d=new Date(t); return d.toLocaleDateString(); };
+const todayStr = ()=>new Date().toISOString().slice(0,10);
+const escHtml = (s)=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function toast(msg,type='info'){
+  const el=document.createElement('div'); el.className='toast '+(type==='good'||type==='bad'||type==='warn'?type:'');
+  el.textContent=msg; $('#toasts').appendChild(el);
+  setTimeout(()=>{el.style.opacity='0'; el.style.transform='translateY(8px)'; el.style.transition='all .2s'; setTimeout(()=>el.remove(),220)},2600);
+}
+function showModal({title,barClass,html,onClose}){
+  $('#mdTitle').textContent=title||'';
+  const bar=$('#mdBar'); bar.className='bar '+(barClass||'');
+  $('#mdBody').innerHTML=html||'';
+  $('#modal').classList.add('on');
+  $('#modal')._onClose=onClose||null;
+  const first=$('#mdBody').querySelector('input, select, textarea');
+  if(first) setTimeout(()=>first.focus(),50);
+}
+function hideModal(){ $('#modal').classList.remove('on'); const cb=$('#modal')._onClose; $('#modal')._onClose=null; if(cb) cb(); }
+$('#mdClose').addEventListener('click',hideModal);
+$('#modal').addEventListener('click',e=>{ if(e.target.id==='modal') hideModal(); });
+
+/* ---------- DataStore (scoped LocalStorage + tombstones) ---------- */
+const DataStore = (()=>{
+  const ENTITIES = ['meta','users','parts','categories','stockHistory',
+    'rosterStaff','rosterLabour','attendanceStaff','attendanceLabour',
+    'requirements','schedules','notices'];
+  const k = (storeId, entity)=>`ADITI:${storeId}:${entity}`;
+  const knownStoresKey = 'ADITI:__knownStores';
+  function addKnown(storeId){ try{
+    const s = new Set(JSON.parse(localStorage.getItem(knownStoresKey)||'[]'));
+    s.add(storeId); localStorage.setItem(knownStoresKey, JSON.stringify([...s]));
+  }catch(e){} }
+  function listKnown(){ try{ return JSON.parse(localStorage.getItem(knownStoresKey)||'[]'); }catch(e){ return []; } }
+  let openId = null;
+  function read(storeId, entity){
+    try{ return JSON.parse(localStorage.getItem(k(storeId,entity))||'null'); }catch(e){ return null; }
+  }
+  function write(storeId, entity, data){
+    localStorage.setItem(k(storeId,entity), JSON.stringify(data));
+  }
+  function initStore(storeId, managerUser){
+    if(!storeId) throw new Error('Store ID required');
+    storeId = String(storeId).trim().toUpperCase();
+    const existing = read(storeId,'meta');
+    if(existing) throw new Error('A store with this ID already exists on this device. Use Login to open it.');
+    const now = Date.now();
+    const meta = {
+      id: uid('st'),
+      storeId,
+      createdAt: now,
+      manager: {
+        username: String(managerUser.username).trim(),
+        password: String(managerUser.password),
+        fullName: String(managerUser.fullName||'').trim(),
+        role: 'manager',
+        createdAt: now
+      }
+    };
+    write(storeId,'meta', meta);
+    for(const e of ENTITIES) if(read(storeId,e)==null) write(storeId,e,[]);
+    // Seed sample categories (not required)
+    const seedCats = [
+      {id:uid('cat'),name:'Fasteners',_updatedAt:now},
+      {id:uid('cat'),name:'Bearings',_updatedAt:now},
+      {id:uid('cat'),name:'Electrical',_updatedAt:now},
+      {id:uid('cat'),name:'Consumables',_updatedAt:now}
+    ];
+    write(storeId,'categories', seedCats);
+    openId = storeId; addKnown(storeId);
+    return storeId;
+  }
+  function openStore(storeId){
+    if(!storeId) throw new Error('Store ID required');
+    storeId = String(storeId).trim().toUpperCase();
+    const existing = read(storeId,'meta');
+    if(!existing){
+      // Empty skeleton — allow opening to login (if user types a new store they can then go to setup from login UI)
+      // But here, just create empty entity arrays so login can check.
+      for(const e of ENTITIES) if(read(storeId,e)==null) write(storeId,e,[]);
+    }
+    openId = storeId; addKnown(storeId);
+    return storeId;
+  }
+  function currentStoreId(){ return openId; }
+  function getMeta(){ if(!openId) return null; return read(openId,'meta'); }
+  function list(entity){
+    if(!openId) throw new Error('No store open');
+    const all = read(openId, entity)||[];
+    return all.filter(x=>!x._deleted);
+  }
+  function raw(entity){ return read(openId, entity)||[]; }
+  function get(entity, id){ return list(entity).find(x=>x.id===id)||null; }
+  function upsert(entity, item){
+    if(!openId) throw new Error('No store open');
+    const all = raw(entity);
+    const t = Date.now();
+    if(!item.id){ item.id = uid(entity.slice(0,3)); }
+    item._updatedAt = t;
+    const i = all.findIndex(x=>x.id===item.id);
+    if(i>=0) all[i] = {...all[i], ...item, _updatedAt:t}; else all.push({...item,_updatedAt:t});
+    write(openId, entity, all);
+    return item;
+  }
+  function remove(entity, id){
+    if(!openId) throw new Error('No store open');
+    const all = raw(entity);
+    const i = all.findIndex(x=>x.id===id);
+    if(i>=0){ all[i] = {...all[i], _deleted:true, _updatedAt:Date.now()}; write(openId,entity,all); return true; }
+    return false;
+  }
+  function set(entity, items){ write(openId, entity, items); }
+  return {ENTITIES, initStore, openStore, currentStoreId, listKnown, getMeta, list, raw, get, upsert, remove, set};
+})();
+
+/* ---------- Auth (in-memory session only) ---------- */
+const Auth = (()=>{
+  let session = null; // {storeId, username, fullName, role}
+  const getSession = ()=> session;
+  function setup({storeId, mgrName, mgrUser, mgrPass, mgrPass2}){
+    if(!storeId || storeId.trim().length<2) throw new Error('Store ID is required (2+ chars)');
+    if(!mgrName.trim()) throw new Error('Manager full name required');
+    if(!/^[A-Za-z0-9_.-]{3,32}$/.test(mgrUser.trim())) throw new Error('Username must be 3-32 chars (letters, numbers, . _ -)');
+    if(mgrPass.length<4) throw new Error('Password must be at least 4 chars');
+    if(mgrPass !== mgrPass2) throw new Error('Passwords do not match');
+    const sid = DataStore.initStore(storeId, {fullName:mgrName, username:mgrUser, password:mgrPass});
+    return openAndLogin(sid, mgrUser, mgrPass, true);
+  }
+  function openAndLogin(storeId, username, password, fromSetup=false){
+    const sid = DataStore.openStore(storeId);
+    const meta = DataStore.getMeta();
+    username = String(username).trim();
+    let user = null;
+    if(meta && meta.manager && meta.manager.username === username && meta.manager.password === password){
+      user = meta.manager;
+    }else{
+      const u = DataStore.list('users').find(x=> x.username === username && x.password === password);
+      if(u) user = u;
+    }
+    if(!user) throw new Error('Invalid username or password for this Store ID.');
+    session = {
+      storeId: sid,
+      username: user.username,
+      fullName: user.fullName || user.username,
+      role: user.role || 'staff'
+    };
+    return session;
+  }
+  function logout(){ session = null; }
+  function requireRole(role){
+    if(!session) return false;
+    if(role==='any') return true;
+    if(role==='manager') return session.role==='manager';
+    if(role==='staff') return session.role==='manager' || session.role==='staff';
+    return true;
+  }
+  return {getSession, setup, login:openAndLogin, logout, requireRole};
+})();
+
+/* ---------- PWA: manifest (data URI) + Service Worker ---------- */
+(function initPWA(){
+  try{
+    const manifest = {
+      name: 'Aditi Stock Manager',
+      short_name: 'Aditi Stock',
+      description: 'Aditi Enterprises Inventory, Attendance & Operations.',
+      start_url: './index.html',
+      scope: './',
+      display: 'standalone',
+      orientation: 'portrait',
+      background_color: '#F7F9FC',
+      theme_color: '#0D9488',
+      icons: [
+        {src:'data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0D9488"/><stop offset="100%" stop-color="#0EA5E9"/></linearGradient></defs><rect width="192" height="192" rx="40" fill="url(#g)"/><text x="96" y="126" font-size="110" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="900" fill="#fff">A</text></svg>'), sizes:'192x192', type:'image/svg+xml', purpose:'any maskable'},
+        {src:'data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0D9488"/><stop offset="100%" stop-color="#0EA5E9"/></linearGradient></defs><rect width="512" height="512" rx="110" fill="url(#g)"/><text x="256" y="336" font-size="290" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="900" fill="#fff">A</text></svg>'), sizes:'512x512', type:'image/svg+xml', purpose:'any maskable'}
+      ]
+    };
+    $('#pwa-manifest').href = 'data:application/manifest+json;charset=utf-8,'+encodeURIComponent(JSON.stringify(manifest));
+  }catch(e){}
+  if(!('serviceWorker' in navigator) || location.protocol === 'file:') return;
+  try{
+    const swCode = `
+      const CACHE = 'aditi-stock-v1';
+      const ASSETS = ['./index.html', './'];
+      self.addEventListener('install', e=>{ e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).catch(()=>{}).then(()=>self.skipWaiting())); });
+      self.addEventListener('activate', e=>{ e.waitUntil(clients.claim()); });
+      self.addEventListener('fetch', e=>{
+        const r = e.request; if(r.method!=='GET') return;
+        e.respondWith(caches.match(r).then(hit => hit || fetch(r).then(res=>{
+          const copy = res.clone();
+          caches.open(CACHE).then(c=>{ try{ c.put(r, copy); }catch(err){} }).catch(()=>{});
+          return res;
+        }).catch(()=>caches.match('./index.html'))));
+      });
+    `;
+    const blob = new Blob([swCode], {type:'application/javascript'});
+    const swUrl = URL.createObjectURL(blob);
+    navigator.serviceWorker.register(swUrl, {scope:'./'}).catch(()=>{});
+  }catch(e){}
+  let deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', e=>{
+    e.preventDefault(); deferredPrompt = e;
+    const b = $('#btnInstall'); if(b){ b.style.display='inline-flex'; b.onclick=async()=>{ if(!deferredPrompt) return; deferredPrompt.prompt(); const choice = await deferredPrompt.userChoice; deferredPrompt = null; if(choice.outcome==='accepted') toast('Installed','good'); }; }
+  });
+})();
+
+/* ---------- App Shell Routing & Role-Based Visibility ---------- */
+let currentTab = 'inventory';
+let attSub = 'labour';
+
+const TABS = ['inventory','history','staff','attendance','requirement','schedule','notice','export'];
+function showTab(tab){
+  if(!TABS.includes(tab)) tab='inventory';
+  currentTab = tab;
+  // Role gating
+  const s = Auth.getSession();
+  const gate = {
+    inventory: ()=> !!s,
+    history: ()=> !!s,
+    staff: ()=> !!(s && s.role==='manager'),
+    attendance: ()=> !!s,
+    requirement: ()=> true,
+    schedule: ()=> !!s,
+    notice: ()=> true,
+    export: ()=> !!s
+  };
+  if(!gate[tab]()){
+    if(tab==='requirement' || tab==='notice'){ /* open */ }
+    else if(!s){ showAuth(); return; }
+    else { toast('You do not have access to this tab','bad'); tab='inventory'; currentTab='inventory'; }
+  }
+  $$('#tabs button').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  $$('.tab').forEach(el=>el.style.display = el.id==='tab-'+tab? 'block':'none');
+  // Manager-only controls toggle
+  $$('[data-mgr]').forEach(el=> el.style.display = (s && s.role==='manager')? '':'none');
+  // Notice board post form visible only to manager
+  if($('#noticeMgr')) $('#noticeMgr').style.display = (s && s.role==='manager')? 'block':'none';
+  // Attendance: Staff sub-tab hidden for staff
+  $$('#attTabs button').forEach(b=>{
+    if(b.dataset.sub==='staff') b.style.display = (s && s.role==='manager')? '':'none';
+  });
+  if(attSub==='staff' && !(s && s.role==='manager')){ attSub='labour'; $$('#attTabs button').forEach(b=>b.classList.toggle('on',b.dataset.sub===attSub)); }
+  // Render
+  if(tab==='inventory') renderInventory();
+  if(tab==='history') renderHistory();
+  if(tab==='staff') renderStaff();
+  if(tab==='attendance') renderAttendance();
+  if(tab==='requirement') renderRequirement();
+  if(tab==='schedule') renderSchedule();
+  if(tab==='notice') renderNotice();
+  if(tab==='export') renderExport();
+}
+$$('#tabs button').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
+
+/* ---------- Auth Screens ---------- */
+function showAuth(){
+  $('#auth').style.display='flex';
+  $('#app').style.display='none';
+  // Populate Store ID from URL
+  const sp = new URLSearchParams(location.search);
+  const fromStore = sp.get('store');
+  // Known stores list
+  const sel = $('#loginStoreId');
+  sel.innerHTML='<option value="">-- choose or type a Store ID --</option>';
+  DataStore.listKnown().forEach(sid=>{
+    const o=document.createElement('option'); o.value=sid; o.textContent=sid; sel.appendChild(o);
+  });
+  // Allow typing too
+  sel.setAttribute('contenteditable','false');
+  // Convert select to combobox with custom input fallback
+  const wrap = sel.parentElement;
+  let customInput = wrap.querySelector('input.custom-store');
+  if(!customInput){
+    customInput = document.createElement('input');
+    customInput.className='custom-store';
+    customInput.placeholder='Or type a Store ID (shared from link or new)';
+    customInput.style.marginTop='6px';
+    wrap.appendChild(customInput);
+    customInput.addEventListener('input',()=>{ if(customInput.value) sel.value=''; });
+    sel.addEventListener('change',()=>{ if(sel.value) customInput.value=''; });
+  }
+  if(fromStore){
+    if([...sel.options].some(o=>o.value===fromStore.toUpperCase())){
+      sel.value = fromStore.toUpperCase();
+    }else{
+      customInput.value = fromStore.toUpperCase();
+      sel.value='';
+    }
+  }
+  // On first open with no known stores → default Setup tab
+  const known = DataStore.listKnown();
+  const t = (known.length===0 && !fromStore)? 'setup':'login';
+  setAuthTab(t);
+}
+function setAuthTab(t){
+  $$('#tabsAuth button').forEach(b=>b.classList.toggle('on', b.dataset.t===t));
+  $('#setupForm').style.display = t==='setup'?'':'none';
+  $('#loginForm').style.display = t==='login'?'':'none';
+}
+$$('#tabsAuth button').forEach(b=>b.addEventListener('click',()=>setAuthTab(b.dataset.t)));
+
+$('#setupForm').addEventListener('submit',(e)=>{
+  e.preventDefault();
+  const f = e.target.elements;
+  $$('#setupForm [data-err]').forEach(x=>x.textContent='');
+  try{
+    const storeId = f.storeId.value.trim();
+    const mgrName = f.mgrName.value.trim();
+    const mgrUser = f.mgrUser.value.trim();
+    const mgrPass = f.mgrPass.value;
+    const mgrPass2 = f.mgrPass2.value;
+    Auth.setup({storeId, mgrName, mgrUser, mgrPass, mgrPass2});
+    toast('Store created. Welcome!','good');
+    enterApp();
+  }catch(err){
+    toast(err.message,'bad');
+  }
+});
+$('#loginForm').addEventListener('submit',(e)=>{
+  e.preventDefault();
+  const f = e.target.elements;
+  try{
+    let storeId = (f.storeId.value || '').trim();
+    const custom = $('#loginForm input.custom-store');
+    if(!storeId && custom && custom.value) storeId = custom.value.trim();
+    if(!storeId) throw new Error('Enter or select a Store ID');
+    Auth.login(storeId, f.username.value, f.password.value);
+    toast('Signed in','good');
+    enterApp();
+  }catch(err){
+    toast(err.message,'bad');
+  }
+});
+function enterApp(){
+  // Ensure the open store has default entity arrays
+  const s = Auth.getSession();
+  if(!s) return;
+  for(const e of DataStore.ENTITIES) if(DataStore.raw(e)==null) DataStore.set(e,[]);
+  $('#chipStore').textContent = 'Store: '+s.storeId;
+  $('#chipUser').textContent = (s.role==='manager'?'👑 Manager':'👤 Staff')+': '+s.fullName;
+  $('#reqBy').value = s.fullName || '';
+  $('#auth').style.display='none';
+  $('#app').style.display='flex';
+  showTab('inventory');
+}
+$('#btnLogout').addEventListener('click',()=>{
+  Auth.logout(); toast('Signed out','warn'); showAuth();
+});
+
+/* ---------- Inventory ---------- */
+let invFilter = {cat:'', q:''};
+function renderInventory(){
+  const s = Auth.getSession();
+  const isMgr = !!(s && s.role==='manager');
+  // Category filter options
+  const sel = $('#invCatFilter'); const cur = sel.value || invFilter.cat;
+  sel.innerHTML = '<option value="">All Categories</option>';
+  const cats = DataStore.list('categories').sort((a,b)=>a.name.localeCompare(b.name));
+  cats.forEach(c=>{ const o=document.createElement('option'); o.value=c.id; o.textContent=c.name; sel.appendChild(o); });
+  sel.value = cur; invFilter.cat = cur;
+  // Search suggest
+  const sug = $('#invSuggest');
+  const doSug = (q)=>{
+    q=(q||'').trim().toLowerCase();
+    if(!q){ sug.innerHTML=''; sug.style.display='none'; return; }
+    const all = DataStore.list('parts');
+    const matches = all.filter(p=>(p.code||'').toLowerCase().includes(q)||(p.name||'').toLowerCase().includes(q)).slice(0,10);
+    if(matches.length===0){ sug.innerHTML='<div class="i muted" style="padding:10px">No matching parts</div>'; }
+    else sug.innerHTML = matches.map((p,i)=>`<div class="i" data-code="${escHtml(p.code||'')}" data-id="${p.id}" ${i===0?'class="i on"':''}><span class="code">${escHtml(p.code||'')}</span><span class="nm">${escHtml(p.name||'')}</span></div>`).join('');
+    sug.style.display='block';
+  };
+  const invSearch = $('#invSearch');
+  invSearch.oninput = (e)=>{ invFilter.q=e.target.value; doSug(e.target.value); drawParts(); };
+  invSearch.onfocus = (e)=>{ if(invFilter.q) doSug(invFilter.value); };
+  invSearch.onkeydown = (e)=>{
+    const items = $$('#invSuggest .i');
+    let on = items.findIndex(i=>i.classList.contains('on'));
+    if(e.key==='ArrowDown'){ e.preventDefault(); on=(on+1)%items.length; items.forEach((i,k)=>i.classList.toggle('on',k===on)); }
+    if(e.key==='ArrowUp'){ e.preventDefault(); on=(on-1+items.length)%items.length; items.forEach((i,k)=>i.classList.toggle('on',k===on)); }
+    if(e.key==='Enter'){ e.preventDefault(); const cur=items[on]; if(cur){ invSearch.value = cur.querySelector('.code').textContent + ' - ' + (cur.querySelector('.nm')?.textContent||''); invFilter.q = invSearch.value; sug.innerHTML=''; sug.style.display='none'; drawParts(); }}
+    if(e.key==='Escape'){ sug.innerHTML=''; sug.style.display='none'; }
+  };
+  sug.onclick=(e)=>{
+    const it = e.target.closest('.i'); if(!it) return;
+    const code = it.dataset.code; const nm = it.querySelector('.nm')?.textContent||'';
+    invSearch.value = (code? code+' - ':'') + nm;
+    invFilter.q = invSearch.value; sug.innerHTML=''; sug.style.display='none'; drawParts();
+  };
+  document.addEventListener('click',(e)=>{ if(!e.target.closest('#invSearch') && !e.target.closest('#invSuggest')){ sug.style.display='none'; }});
+  $('#btnNewPart').onclick = ()=> openPartModal();
+  $('#btnCatMgr').onclick = ()=> openCategoryModal();
+  drawParts();
+}
+function drawParts(){
+  const parts = DataStore.list('parts');
+  const cats = Object.fromEntries(DataStore.list('categories').map(c=>[c.id,c.name]));
+  const q = (invFilter.q||'').trim().toLowerCase();
+  const cat = invFilter.cat||'';
+  const filtered = parts.filter(p=>{
+    if(cat && p.categoryId!==cat) return false;
+    if(q && !(p.code||'').toLowerCase().includes(q) && !(p.name||'').toLowerCase().includes(q) && !(cats[p.categoryId]||'').toLowerCase().includes(q)) return false;
+    return true;
+  }).sort((a,b)=>(Number(a.rank||Infinity)-(Number(b.rank||Infinity)))||a.name.localeCompare(b.name));
+  const grid = $('#partsGrid');
+  if(filtered.length===0){ grid.innerHTML = `<div class="empty" style="grid-column:1/-1">No parts found. Click <b>+ New Part</b> to register your first part.</div>`; return; }
+  const s = Auth.getSession(); const isMgr = !!(s && s.role==='manager');
+  grid.innerHTML = filtered.map(p=>{
+    const stock = Number(p.stock ?? p.openingStock ?? 0);
+    const low = stock <= 5;
+    const catName = cats[p.categoryId] || 'Uncategorized';
+    return `<div class="card inv">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span class="pill slate">#${escHtml(p.code||'—')}</span>
+        ${p.rank!=null?`<span class="pill violet">Rank ${escHtml(p.rank)}</span>`:''}
+        <span class="pill teal" style="margin-left:auto">${escHtml(catName)}</span>
+      </div>
+      <h3>${escHtml(p.name||'Untitled')}</h3>
+      <div class="muted">Opening: ${Number(p.openingStock||0)} &nbsp;•&nbsp; Last updated: ${fmtDT(p._updatedAt||0)}</div>
+      <div style="display:flex;align-items:center;gap:10px;margin:12px 0 0">
+        <div style="font-weight:900;font-size:22px">Stock: ${stock}</div>
+        <span class="pill ${low?'bad':'good'}">${low?'⚠ Low':'OK'}</span>
+      </div>
+      <div class="actions">
+        <button class="btn good small" data-act="in" data-id="${p.id}">＋ Inward</button>
+        <button class="btn warn small" data-act="out" data-id="${p.id}">− Outward</button>
+        ${isMgr?`<button class="btn ghost small" data-act="edit" data-id="${p.id}">✎ Edit</button><button class="btn danger small" data-act="del" data-id="${p.id}">🗑 Delete</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  grid.onclick = (e)=>{
+    const b = e.target.closest('button[data-act]'); if(!b) return;
+    const id = b.dataset.id, act = b.dataset.act;
+    if(act==='in'||act==='out') openAdjustModal(id, act);
+    if(act==='edit') openPartModal(id);
+    if(act==='del'){
+      if(confirm('Delete this part permanently? History is preserved but the part will not return.')){
+        DataStore.remove('parts',id); toast('Part deleted','warn'); drawParts();
+      }
+    }
+  };
+}
+function openPartModal(id=null){
+  const cats = DataStore.list('categories').sort((a,b)=>a.name.localeCompare(b.name));
+  const p = id? DataStore.get('parts',id) || {} : {};
+  showModal({
+    title: id? 'Edit Part' : 'Register New Part',
+    barClass:'inv',
+    html:`<form id="partForm">
+      <div class="row">
+        <div class="field"><label>Part Code (unique)</label><input name="code" required maxlength="40" value="${escHtml(p.code||'')}" placeholder="e.g. BB-6202-ZZ" /></div>
+        <div class="field"><label>Part Name</label><input name="name" required maxlength="120" value="${escHtml(p.name||'')}" /></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Category</label>
+          <div class="row" style="gap:6px;flex-wrap:nowrap">
+            <select name="categoryId" style="flex:1 1 auto;min-width:140px">
+              <option value="">Uncategorized</option>
+              ${cats.map(c=>`<option value="${c.id}" ${c.id===p.categoryId?'selected':''}>${escHtml(c.name)}</option>`).join('')}
+            </select>
+            <button type="button" class="btn small ghost" id="btnQuickCat" style="flex:0 0 auto">+ New</button>
+          </div>
+        </div>
+        <div class="field"><label>Rank No. (sort order)</label><input name="rank" type="number" min="0" step="1" value="${p.rank==null?'':p.rank}" /></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Opening Stock</label><input name="openingStock" type="number" min="0" step="any" value="${p.openingStock==null?'0':p.openingStock}" /></div>
+        <div class="field"><label>Current Stock${id?' (edit carefully — use Inward/Outward for adjustments)':''}</label><input name="stock" type="number" min="0" step="any" value="${p.stock==null?(p.openingStock||0):p.stock}" /></div>
+      </div>
+      <div class="err" id="partErr"></div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn teal" type="submit">${id?'Save Changes':'Register Part'}</button>
+        <button type="button" class="btn ghost" id="partCancel">Cancel</button>
+      </div>
+    </form>`
+  });
+  $('#btnQuickCat').onclick = ()=>{
+    const nm = prompt('New category name:'); if(!nm) return;
+    const c = DataStore.upsert('categories',{name:nm.trim()});
+    toast('Category added','good');
+    const sel = $('#partForm select[name=categoryId]');
+    const o=document.createElement('option'); o.value=c.id; o.textContent=c.name; o.selected=true; sel.appendChild(o);
+  };
+  $('#partCancel').onclick = hideModal;
+  $('#partForm').onsubmit = (e)=>{
+    e.preventDefault();
+    const f = e.target.elements;
+    $('#partErr').textContent='';
+    try{
+      const code = String(f.code.value||'').trim().toUpperCase();
+      if(!code) throw new Error('Part code is required');
+      const dup = DataStore.list('parts').find(x=> x.code===code && x.id!==id);
+      if(dup) throw new Error('Part code already exists: '+code);
+      const obj = {
+        code,
+        name: String(f.name.value||'').trim(),
+        categoryId: f.categoryId.value || null,
+        rank: f.rank.value===''? null : Number(f.rank.value),
+        openingStock: Number(f.openingStock.value||0),
+        stock: Number(f.stock.value||0)
+      };
+      if(id) obj.id = id;
+      const saved = DataStore.upsert('parts',obj);
+      toast(id?'Part updated':'Part added','good');
+      hideModal(); drawParts(); renderHistory();
+    }catch(err){ $('#partErr').textContent=err.message; toast(err.message,'bad'); }
+  };
+}
+function openAdjustModal(partId, direction){
+  const p = DataStore.get('parts',partId); if(!p){ toast('Part missing','bad'); return; }
+  const s = Auth.getSession();
+  showModal({
+    title: (direction==='in'?'Stock Inward (+)  — ':'Stock Outward (−)  — ')+p.name,
+    barClass: direction==='in'?'att':'req',
+    html:`<form id="adjForm">
+      <div class="row">
+        <div class="field"><label>Part Code</label><input value="${escHtml(p.code||'')}" disabled /></div>
+        <div class="field"><label>Current Stock</label><input value="${Number(p.stock ?? p.openingStock ?? 0)}" disabled /></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Quantity (${direction==='in'?'add':'remove'})</label><input type="number" name="qty" min="1" step="any" required autofocus /></div>
+        <div class="field"><label>Operator</label><input name="op" required maxlength="60" value="${escHtml(s?.fullName||'')}" /></div>
+      </div>
+      <div class="field"><label>Remarks (mandatory)</label><textarea name="notes" required rows="2" placeholder="Reason / PO # / Requisition / person name etc."></textarea></div>
+      <div class="err" id="adjErr"></div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn ${direction==='in'?'good':'warn'}" type="submit">Confirm ${direction==='in'?'Inward':'Outward'}</button>
+        <button type="button" class="btn ghost" id="adjCancel">Cancel</button>
+      </div>
+    </form>`
+  });
+  $('#adjCancel').onclick = hideModal;
+  $('#adjForm').onsubmit = (e)=>{
+    e.preventDefault();
+    const f = e.target.elements; $('#adjErr').textContent='';
+    try{
+      const qty = Math.abs(Number(f.qty.value||0));
+      if(!qty || qty<=0) throw new Error('Quantity must be greater than 0');
+      const op = String(f.op.value||'').trim();
+      const notes = String(f.notes.value||'').trim();
+      if(!op) throw new Error('Operator name is required');
+      if(!notes) throw new Error('Remarks are required');
+      const curStock = Number(p.stock ?? p.openingStock ?? 0);
+      if(direction==='out' && curStock < qty) throw new Error(`Insufficient stock. Current stock is ${curStock}.`);
+      const newStock = direction==='in'? curStock+qty : curStock-qty;
+      DataStore.upsert('parts',{id:p.id, stock:newStock});
+      DataStore.upsert('stockHistory',{
+        partId: p.id, partCode:p.code, partName:p.name,
+        direction, qty, operator:op, remarks:notes,
+        at: Date.now(), by: s?.username||'unknown', role: s?.role||''
+      });
+      toast(`Stock ${direction==='in'?'increased':'decreased'} by ${qty}`,'good');
+      hideModal(); drawParts(); renderHistory();
+    }catch(err){ $('#adjErr').textContent=err.message; toast(err.message,'bad'); }
+  };
+}
+function openCategoryModal(){
+  const draw = ()=>{
+    const cats = DataStore.list('categories').sort((a,b)=>a.name.localeCompare(b.name));
+    const counts = {};
+    DataStore.list('parts').forEach(p=>{ counts[p.categoryId]=(counts[p.categoryId]||0)+1; });
+    return cats.map(c=>`
+      <div style="display:flex;align-items:center;gap:8px;padding:8px 4px;border-bottom:1px solid var(--line)">
+        <input type="text" value="${escHtml(c.name)}" data-id="${c.id}" class="cat-name" style="flex:1;border:1px solid var(--line-2);border-radius:8px;padding:8px 10px;min-height:40px" />
+        <span class="pill slate">${counts[c.id]||0} parts</span>
+        <button class="btn small ghost" data-save="${c.id}">Save</button>
+        <button class="btn small danger" data-del="${c.id}">Delete</button>
+      </div>`).join('') || `<div class="empty">No categories yet.</div>`;
+  };
+  showModal({
+    title:'Category Manager',
+    barClass:'stf',
+    html:`
+      <div class="row">
+        <div class="field" style="margin:0 0 8px"><input id="newCatName" placeholder="New category name" /></div>
+        <div style="align-self:center"><button class="btn violet small" id="addCat">+ Add</button></div>
+      </div>
+      <div id="catList" style="max-height:55vh;overflow:auto">${draw()}</div>
+    `
+  });
+  function refresh(){ $('#catList').innerHTML = draw(); bind(); }
+  function bind(){
+    $('#addCat').onclick = ()=>{
+      const nm = $('#newCatName').value.trim(); if(!nm) return;
+      DataStore.upsert('categories',{name:nm}); $('#newCatName').value=''; toast('Category added','good'); refresh();
+    };
+    $$('#catList [data-save]').forEach(b=>b.onclick = ()=>{
+      const id = b.dataset.save;
+      const nm = $('#catList input.cat-name[data-id="'+id+'"]').value.trim();
+      if(!nm){ toast('Name empty','bad'); return; }
+      const cat = DataStore.get('categories',id); if(!cat) return;
+      DataStore.upsert('categories',{...cat,name:nm}); toast('Saved','good'); refresh();
+    });
+    $$('#catList [data-del]').forEach(b=>b.onclick = ()=>{
+      const id = b.dataset.del;
+      const cnt = DataStore.list('parts').filter(p=>p.categoryId===id).length;
+      const msg = cnt? `Delete category? ${cnt} part(s) will become Uncategorized. Parts themselves are NOT deleted.` : 'Delete this category?';
+      if(confirm(msg)){
+        const parts = DataStore.list('parts');
+        parts.forEach(p=>{ if(p.categoryId===id) DataStore.upsert('parts',{...p,categoryId:null}); });
+        DataStore.remove('categories',id); toast('Category deleted','warn'); refresh();
+      }
+    });
+  }
+  bind();
+}
+$('#invCatFilter').addEventListener('change',(e)=>{ invFilter.cat = e.target.value; drawParts(); });
+
+/* ---------- History ---------- */
+function renderHistory(){
+  const draw = ()=>{
+    const q = ($('#hisSearch').value||'').toLowerCase();
+    const op = ($('#hisOp').value||'').toLowerCase();
+    const from = $('#hisFrom').value? new Date($('#hisFrom').value).getTime():null;
+    const to = $('#hisTo').value? new Date($('#hisTo').value+'T23:59:59').getTime():null;
+    const rows = DataStore.list('stockHistory').filter(h=>{
+      if(q && !(h.partCode||'').toLowerCase().includes(q) && !(h.partName||'').toLowerCase().includes(q)) return false;
+      if(op && !(h.operator||'').toLowerCase().includes(op)) return false;
+      if(from!=null && h.at<from) return false;
+      if(to!=null && h.at>to) return false;
+      return true;
+    }).sort((a,b)=>b.at-a.at);
+    const tb = $('#hisTable tbody');
+    if(rows.length===0){ tb.innerHTML='<tr><td colspan="6" style="padding:24px;text-align:center;color:var(--muted)">No history records.</td></tr>'; return; }
+    tb.innerHTML = rows.map(h=>`<tr>
+      <td>${fmtDT(h.at)}</td>
+      <td><b>${escHtml(h.partCode||'—')}</b><br><span class="muted">${escHtml(h.partName||'')}</span></td>
+      <td>${escHtml(h.operator||'')}<br><span class="muted fs-12">by ${escHtml(h.by||'—')}${h.role?' ('+h.role+')':''}</span></td>
+      <td><span class="tag ${h.direction==='in'?'in':'out'}">${h.direction==='in'?'INWARD':'OUTWARD'}</span></td>
+      <td><b>${h.direction==='in'?'+':'−'}${Number(h.qty||0)}</b></td>
+      <td>${escHtml(h.remarks||'')}</td>
+    </tr>`).join('');
+  };
+  ['input','change'].forEach(ev=>{
+    $('#hisSearch').addEventListener(ev,draw);
+    $('#hisOp').addEventListener(ev,draw);
+    $('#hisFrom').addEventListener(ev,draw);
+    $('#hisTo').addEventListener(ev,draw);
+  });
+  $('#hisReset').onclick = ()=>{ $('#hisSearch').value=''; $('#hisOp').value=''; $('#hisFrom').value=''; $('#hisTo').value=''; draw(); };
+  draw();
+}
+
+/* ---------- Staff Management ---------- */
+function renderStaff(){
+  const s = Auth.getSession(); const isMgr = !!(s && s.role==='manager');
+  $('#staffIntro').innerHTML = isMgr? 'Create and manage staff login accounts for this Store. Only you can see this tab.'
+                                    : 'Staff management is available only to the Manager.';
+  const users = DataStore.list('users');
+  const meta = DataStore.getMeta();
+  const tbody = $('#staffTable tbody');
+  const rows = [];
+  if(meta && meta.manager){
+    rows.push(`<tr><td><b>${escHtml(meta.manager.username)}</b> <span class="pill violet">Manager</span></td>
+      <td>${escHtml(meta.manager.fullName||'—')}</td><td>Manager</td><td>${fmtDT(meta.createdAt||0)}</td><td class="muted">Store owner (cannot be deleted here)</td></tr>`);
+  }
+  if(users.length===0 && !rows) tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:22px;color:var(--muted)">No staff yet. Click + Add Staff.</td></tr>';
+  tbody.innerHTML = rows.join('') + users.map(u=>`<tr>
+    <td><b>${escHtml(u.username)}</b></td>
+    <td>${escHtml(u.fullName||'—')}</td>
+    <td><span class="pill ${u.role==='manager'?'violet':'sky'}">${u.role==='manager'?'Manager':'Staff'}</span></td>
+    <td>${fmtDT(u.createdAt||u._updatedAt||0)}</td>
+    <td>${isMgr?`<button class="btn small ghost" data-act="edit" data-id="${u.id}">Edit</button>
+      <button class="btn small danger" data-act="del" data-id="${u.id}">Delete</button>`:''}</td>
+  </tr>`).join('');
+  tbody.onclick = (e)=>{
+    const b = e.target.closest('button[data-act]'); if(!b) return;
+    const id = b.dataset.id, act=b.dataset.act;
+    if(act==='edit') openStaffModal(id);
+    if(act==='del'){
+      const u = DataStore.get('users',id); if(!u) return;
+      if(confirm(`Delete staff account "${u.username}"? They will no longer be able to log in.`)){
+        DataStore.remove('users',id); toast('Staff removed','warn'); renderStaff();
+      }
+    }
+  };
+  $('#btnNewStaff').onclick = ()=> openStaffModal();
+}
+function openStaffModal(id=null){
+  const u = id? DataStore.get('users',id)||{} : {};
+  showModal({
+    title: id? 'Edit Staff' : 'Add Staff Login',
+    barClass:'stf',
+    html:`<form id="staffForm">
+      <div class="row">
+        <div class="field"><label>Username (unique)</label><input name="username" required minlength="3" maxlength="32" value="${escHtml(u.username||'')}" ${id?'disabled':''} ${id?'style="background:var(--bg-2)"':''} /></div>
+        <div class="field"><label>Full Name</label><input name="fullName" required maxlength="60" value="${escHtml(u.fullName||'')}" /></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Password${id?' (leave blank to keep)':''}</label><input type="password" name="password" ${id?'':'required'} minlength="4" /></div>
+        <div class="field"><label>Role</label><select name="role"><option value="staff" ${u.role!=='manager'?'selected':''}>Staff</option><option value="manager" ${u.role==='manager'?'selected':''}>Co-Manager</option></select></div>
+      </div>
+      <div class="err" id="staffErr"></div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn violet" type="submit">${id?'Save':'Create Staff'}</button>
+        <button type="button" class="btn ghost" id="staffCancel">Cancel</button>
+      </div>
+    </form>`
+  });
+  $('#staffCancel').onclick = hideModal;
+  $('#staffForm').onsubmit=(e)=>{
+    e.preventDefault();
+    const f = e.target.elements; $('#staffErr').textContent='';
+    try{
+      const username = String(f.username.value||'').trim();
+      if(!/^[A-Za-z0-9_.-]{3,32}$/.test(username)) throw new Error('Username: 3-32 chars (letters, numbers, . _ -)');
+      if(!id && DataStore.list('users').some(x=>x.username===username)) throw new Error('Username already exists');
+      const meta = DataStore.getMeta();
+      if(meta.manager.username===username && !id) throw new Error('Username reserved by manager');
+      const pass = String(f.password.value||'');
+      if(!id && !pass) throw new Error('Password required');
+      const payload = {
+        username,
+        fullName: String(f.fullName.value||'').trim(),
+        role: f.role.value==='manager'?'manager':'staff',
+      };
+      if(id) payload.id = id; else payload.createdAt = Date.now();
+      if(pass) payload.password = pass;
+      else {
+        // keep existing
+        if(id){ const cur = DataStore.get('users',id); if(cur) payload.password = cur.password; }
+      }
+      DataStore.upsert('users',payload);
+      toast(id?'Staff updated':'Staff created','good'); hideModal(); renderStaff();
+    }catch(err){ $('#staffErr').textContent=err.message; toast(err.message,'bad'); }
+  };
+}
+
+/* ---------- Attendance ---------- */
+function renderAttendance(){
+  const s = Auth.getSession(); const isMgr = !!(s && s.role==='manager');
+  $('#attDate').value = $('#attDate').value || todayStr();
+  $$('#attTabs button').forEach(b=>b.classList.toggle('on', b.dataset.sub===attSub));
+  $$('#attTabs button').forEach(b=>b.onclick = ()=>{
+    if(b.dataset.sub==='staff' && !isMgr){ toast('Only Manager can view Staff attendance','bad'); return; }
+    attSub = b.dataset.sub;
+    $$('#attTabs button').forEach(x=>x.classList.toggle('on',x.dataset.sub===attSub));
+    drawAtt();
+  });
+  $('#btnAddPerson').onclick = ()=>{
+    if(attSub==='staff' && !isMgr){ toast('Only Manager can add Staff','bad'); return; }
+    const roster = attSub==='staff'?'rosterStaff':'rosterLabour';
+    const nm = prompt(`Name of new ${attSub==='staff'?'Staff member':'Labourer'}:`);
+    if(!nm || !nm.trim()) return;
+    DataStore.upsert(roster,{name:nm.trim()}); toast('Added','good'); drawAtt();
+  };
+  $('#attDate').onchange = drawAtt;
+  drawAtt();
+}
+function drawAtt(){
+  const s = Auth.getSession(); const isMgr = !!(s && s.role==='manager');
+  const isLabour = attSub==='labour';
+  const canEdit = isMgr || isLabour; // Staff can edit labour
+  const rosterEntity = isLabour? 'rosterLabour':'rosterStaff';
+  const attEntity = isLabour? 'attendanceLabour':'attendanceStaff';
+  const people = DataStore.list(rosterEntity).sort((a,b)=>a.name.localeCompare(b.name));
+  const date = $('#attDate').value || todayStr();
+  const attRows = DataStore.list(attEntity).filter(a=>a.date===date);
+  const attMap = Object.fromEntries(attRows.map(a=>[a.personId,a]));
+  const wrap = $('#attRoster');
+  if(people.length===0){ wrap.innerHTML = `<div class="empty">No ${isLabour?'labourers':'staff members'} in roster yet. Click + Add Person.</div>`; return; }
+  wrap.innerHTML = `
+    <div class="att-grid header">
+      <div>Person</div><div>Punch In</div><div>Punch Out</div><div>Duration</div><div>Remarks / Status</div><div></div>
+    </div>` + people.map(p=>{
+      const a = attMap[p.id] || {id:uid('att'), personId:p.id, date, status:'Present'};
+      const inOk = !!a.inT, outOk=!!a.outT;
+      const dur = (inOk && outOk)? Math.max(0, (a.outT - a.inT)/60000):0;
+      const hh = String(Math.floor(dur/60)).padStart(2,'0');
+      const mm = String(Math.round(dur%60)).padStart(2,'0');
+      return `<div class="att-grid" data-id="${p.id}">
+        <div>
+          <div style="font-weight:800">${escHtml(p.name)}</div>
+          ${canEdit?`<div class="muted fs-12"><button class="btn small ghost" style="padding:2px 6px;min-height:auto" data-peredit="${p.id}">Rename</button>
+           <button class="btn small danger" style="padding:2px 6px;min-height:auto;margin-left:4px" data-perdel="${p.id}">Remove</button></div>`:''}
+        </div>
+        <div>
+          ${canEdit?`<input type="time" class="inT" value="${a.inT?new Date(a.inT).toTimeString().slice(0,5):''}" />
+          <button class="btn good small" data-pin style="margin-top:4px">Punch In Now</button>`
+          :`<div>${a.inT? new Date(a.inT).toLocaleTimeString(): '—'}</div>`}
+        </div>
+        <div>
+          ${canEdit?`<input type="time" class="outT" value="${a.outT?new Date(a.outT).toTimeString().slice(0,5):''}" />
+          <button class="btn warn small" data-pout style="margin-top:4px">Punch Out Now</button>`
+          :`<div>${a.outT? new Date(a.outT).toLocaleTimeString(): '—'}</div>`}
+        </div>
+        <div>
+          <div style="font-weight:800">${inOk&&outOk?(hh+':'+mm):'—'}</div>
+          <span class="pill ${a.status==='Absent'?'bad':'good'}">${a.status||'Present'}</span>
+        </div>
+        <div>
+          <input class="rem" style="width:100%;border:1px solid var(--line-2);border-radius:8px;padding:8px 10px;min-height:40px" placeholder="Remarks..." value="${escHtml(a.remarks||'')}" />
+          <label class="switch" style="margin-top:6px"><input type="checkbox" class="abs" ${a.status==='Absent'?'checked':''}><span class="s"></span>Mark Absent</label>
+        </div>
+        <div>
+          ${canEdit?`<button class="btn slate small" data-save>Save</button>`:''}
+        </div>
+      </div>`;
+    }).join('');
+  // Bind per row
+  wrap.querySelectorAll('.att-grid[data-id]').forEach(r=>{
+    const pid = r.dataset.id;
+    const inp = r.querySelector('.inT'), outp = r.querySelector('.outT'), rem = r.querySelector('.rem'), abs = r.querySelector('.abs');
+    const pin = r.querySelector('[data-pin]'), pout = r.querySelector('[data-pout]'), save = r.querySelector('[data-save]');
+    const getSaved = ()=> DataStore.list(attEntity).find(a=>a.personId===pid && a.date===date) || {id:uid('att'),personId:pid,date,status:'Present'};
+    const toMs = (hhmm, base)=>{ if(!hhmm) return null; const [h,m]=hhmm.split(':').map(Number); const d=new Date(base); d.setHours(h,m,0,0); return d.getTime(); };
+    if(pin) pin.onclick = ()=>{ const n=new Date(); inp.value = n.toTimeString().slice(0,5); saveRow(); };
+    if(pout) pout.onclick = ()=>{ const n=new Date(); outp.value = n.toTimeString().slice(0,5); saveRow(); };
+    const saveRow = ()=>{
+      if(!canEdit) return;
+      const row = getSaved();
+      const base = new Date(date+'T00:00:00');
+      row.inT = toMs(inp?.value||'', base);
+      row.outT = toMs(outp?.value||'', base);
+      row.remarks = rem?.value||'';
+      row.status = abs?.checked? 'Absent':'Present';
+      DataStore.upsert(attEntity,row);
+    };
+    if(save) save.onclick=()=>{ saveRow(); toast('Saved','good'); drawAtt(); };
+    const edit = r.querySelector('[data-peredit]'), del = r.querySelector('[data-perdel]');
+    if(edit) edit.onclick=()=>{
+      const p = DataStore.get(rosterEntity, pid); if(!p) return;
+      const nm = prompt('Rename to:', p.name); if(!nm||!nm.trim()) return;
+      DataStore.upsert(rosterEntity,{...p,name:nm.trim()}); drawAtt();
+    };
+    if(del) del.onclick=()=>{
+      const p = DataStore.get(rosterEntity, pid); if(!p) return;
+      if(confirm(`Remove "${p.name}" from ${isLabour?'labour':'staff'} roster? They will not return on refresh.`)){
+        DataStore.remove(rosterEntity,pid); toast('Removed','warn'); drawAtt();
+      }
+    };
+  });
+}
+
+/* ---------- Requirement ---------- */
+function renderRequirement(){
+  const s = Auth.getSession(); const isMgr = !!(s && s.role==='manager');
+  $('#reqForm').onsubmit=(e)=>{
+    e.preventDefault(); const f = e.target.elements;
+    DataStore.upsert('requirements',{
+      title: String(f.title.value||'').trim(),
+      item: String(f.item.value||'').trim(),
+      desc: String(f.desc.value||'').trim(),
+      by: String(f.by.value||'').trim() || 'Anonymous',
+      prio: f.prio.value,
+      date: f.date.value || todayStr(),
+      done:false,
+      byUser: s?.username||null
+    });
+    toast('Requirement posted','good'); e.target.reset(); $('#reqBy').value = s?.fullName || ''; drawReq();
+  };
+  drawReq();
+}
+function drawReq(){
+  const s = Auth.getSession(); const isMgr = !!(s && s.role==='manager');
+  const list = DataStore.list('requirements').sort((a,b)=> (b.date||'').localeCompare(a.date||'') || (b._updatedAt||0)-(a._updatedAt||0));
+  const wrap = $('#reqList');
+  if(list.length===0){ wrap.innerHTML = `<div class="empty" style="grid-column:1/-1">No requirements yet. Post the first one above.</div>`; return; }
+  wrap.innerHTML = list.map(r=>{
+    const isPoster = (r.byUser && r.byUser===(s?.username)) || (r.by && s?.fullName && r.by===s.fullName);
+    const canEdit = isMgr || isPoster;
+    return `<div class="card req req-card prio-${r.prio==='high'?'high':r.prio==='med'?'med':'low'}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span class="pill ${r.prio==='high'?'bad':r.prio==='med'?'warn':'good'}">${r.prio==='high'?'HIGH':r.prio==='med'?'MEDIUM':'LOW'}</span>
+        <span class="pill slate">${escHtml(r.date||'')}</span>
+        <span style="margin-left:auto;font-size:12px;color:var(--muted)">by <b>${escHtml(r.by||'—')}</b></span>
+      </div>
+      <h3>${escHtml(r.title||'Untitled')} ${r.done?'<span class="pill good">✓ Done</span>':''}</h3>
+      ${r.item?`<div class="muted">Item / Qty: ${escHtml(r.item)}</div>`:''}
+      ${r.desc?`<div style="margin:6px 0;white-space:pre-wrap">${escHtml(r.desc)}</div>`:''}
+      <div class="actions">
+        ${canEdit?`<label class="switch"><input type="checkbox" class="tog" data-id="${r.id}" ${r.done?'checked':''}/><span class="s"></span>${r.done?'Mark Not Done':'Mark Completed'}</label>`:''}
+        ${canEdit?`<button class="btn small ghost" data-edit="${r.id}">Edit</button>`:''}
+        ${canEdit?`<button class="btn small danger" data-del="${r.id}">Delete</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  wrap.onclick = (e)=>{
+    const tog = e.target.closest('input.tog');
+    if(tog){
+      const id = tog.closest('.tog').dataset.id || (tog.dataset.id);
+      const r = DataStore.get('requirements', id); if(!r) return;
+      DataStore.upsert('requirements',{...r, done:!!tog.checked}); toast(tog.checked?'Marked done':'Reopened','warn'); drawReq(); return;
+    }
+    const del = e.target.closest('button[data-del]'); if(del){
+      if(confirm('Delete this requirement?')){ DataStore.remove('requirements',del.dataset.del); toast('Deleted','warn'); drawReq(); } return;
+    }
+    const edit = e.target.closest('button[data-edit]'); if(edit){
+      const r = DataStore.get('requirements', edit.dataset.edit); if(!r) return;
+      showModal({title:'Edit Requirement', barClass:'req', html:`
+        <form id="editReqForm">
+          <div class="row">
+            <div class="field" style="flex:2"><label>Title</label><input name="title" required value="${escHtml(r.title||'')}"/></div>
+            <div class="field"><label>Priority</label><select name="prio"><option value="low" ${r.prio==='low'?'selected':''}>Low</option><option value="med" ${r.prio==='med'?'selected':''}>Medium</option><option value="high" ${r.prio==='high'?'selected':''}>High</option></select></div>
+          </div>
+          <div class="row">
+            <div class="field"><label>Item &amp; Qty</label><input name="item" value="${escHtml(r.item||'')}"/></div>
+            <div class="field"><label>Date</label><input name="date" type="date" value="${r.date||''}"/></div>
+            <div class="field"><label>Posted By</label><input name="by" value="${escHtml(r.by||'')}"/></div>
+          </div>
+          <div class="field"><label>Description</label><textarea name="desc" rows="3">${escHtml(r.desc||'')}</textarea></div>
+          <div style="display:flex;gap:8px"><button class="btn rose" type="submit">Save</button><button type="button" class="btn ghost" id="editReqCancel">Cancel</button></div>
+        </form>`});
+      $('#editReqCancel').onclick=hideModal;
+      $('#editReqForm').onsubmit=(e)=>{
+        e.preventDefault(); const f=e.target.elements;
+        DataStore.upsert('requirements',{...r, title:f.title.value, item:f.item.value, desc:f.desc.value, by:f.by.value, prio:f.prio.value, date:f.date.value});
+        toast('Updated','good'); hideModal(); drawReq();
+      };
+    }
+  };
+}
+
+/* ---------- Schedule ---------- */
+function renderSchedule(){
+  $('#schForm').onsubmit = (e)=>{
+    e.preventDefault(); const f = e.target.elements; const s = Auth.getSession();
+    DataStore.upsert('schedules',{
+      item: String(f.item.value||'').trim(),
+      qty: Number(f.qty.value||0),
+      date: f.date.value,
+      asg: String(f.asg.value||'').trim(),
+      notes: String(f.notes.value||'').trim(),
+      done:false,
+      by: s?.username||null,
+      byName: s?.fullName||''
+    });
+    toast('Schedule added','good'); e.target.reset(); drawSch();
+  };
+  ['input','change'].forEach(ev=>{
+    $('#schSearch').addEventListener(ev,drawSch);
+    $('#schStatus').addEventListener(ev,drawSch);
+    $('#schDate').addEventListener(ev,drawSch);
+  });
+  drawSch();
+}
+function drawSch(){
+  const s = Auth.getSession(); const isMgr = !!(s && s.role==='manager');
+  const q = ($('#schSearch').value||'').toLowerCase();
+  const st = $('#schStatus').value; const d = $('#schDate').value;
+  const list = DataStore.list('schedules').filter(x=>{
+    if(q && !(x.item||'').toLowerCase().includes(q) && !(x.asg||'').toLowerCase().includes(q)) return false;
+    if(st!=='' && String(!!x.done?1:0)!==st) return false;
+    if(d && x.date!==d) return false;
+    return true;
+  }).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  const wrap = $('#schList');
+  if(list.length===0){ wrap.innerHTML = `<div class="empty" style="grid-column:1/-1">No schedules match the filters.</div>`; return; }
+  wrap.innerHTML = list.map(r=>{
+    const isPoster = (r.by===(s?.username)); const canEdit = isMgr || isPoster;
+    return `<div class="card sch sch-card ${r.done?'done':''}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span class="pill sky">${escHtml(r.date||'—')}</span>
+        <span class="pill violet">Qty ${r.qty||0}</span>
+        <span style="margin-left:auto" class="muted fs-12">by ${escHtml(r.byName||r.by||'—')}</span>
+      </div>
+      <h3>${escHtml(r.item||'Untitled')}</h3>
+      ${r.asg?`<div class="muted">Assigned to: <b>${escHtml(r.asg)}</b></div>`:''}
+      ${r.notes?`<div style="margin:6px 0;white-space:pre-wrap">${escHtml(r.notes)}</div>`:''}
+      <div class="actions">
+        ${canEdit?`<label class="switch"><input type="checkbox" class="tog" data-id="${r.id}" ${r.done?'checked':''}/><span class="s"></span>${r.done?'Reopen':'Mark Completed'}</label>`:''}
+        ${canEdit?`<button class="btn small ghost" data-edit="${r.id}">Edit</button>`:''}
+        ${canEdit?`<button class="btn small danger" data-del="${r.id}">Delete</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  wrap.onclick = (e)=>{
+    const tog = e.target.closest('input.tog');
+    if(tog){ const id = tog.dataset.id; const r = DataStore.get('schedules',id); if(!r) return;
+      DataStore.upsert('schedules',{...r,done:!!tog.checked}); toast(tog.checked?'Completed':'Reopened','warn'); drawSch(); return; }
+    const del = e.target.closest('button[data-del]'); if(del){
+      if(confirm('Delete this schedule?')){ DataStore.remove('schedules',del.dataset.del); toast('Deleted','warn'); drawSch(); } return; }
+    const edit = e.target.closest('button[data-edit]'); if(edit){
+      const r = DataStore.get('schedules',edit.dataset.edit); if(!r) return;
+      showModal({title:'Edit Schedule', barClass:'sch', html:`
+        <form id="editSchForm">
+          <div class="row">
+            <div class="field" style="flex:2"><label>Item</label><input name="item" required value="${escHtml(r.item||'')}"/></div>
+            <div class="field"><label>Qty</label><input name="qty" type="number" min="0" step="any" required value="${r.qty||0}"/></div>
+            <div class="field"><label>Date</label><input name="date" type="date" required value="${r.date||''}"/></div>
+          </div>
+          <div class="row">
+            <div class="field"><label>Assigned To</label><input name="asg" value="${escHtml(r.asg||'')}"/></div>
+            <div class="field" style="flex:2"><label>Notes</label><input name="notes" value="${escHtml(r.notes||'')}"/></div>
+          </div>
+          <div style="display:flex;gap:8px"><button class="btn sky" type="submit">Save</button><button type="button" class="btn ghost" id="editSchCancel">Cancel</button></div>
+        </form>`});
+      $('#editSchCancel').onclick=hideModal;
+      $('#editSchForm').onsubmit=(e)=>{
+        e.preventDefault(); const f=e.target.elements;
+        DataStore.upsert('schedules',{...r, item:f.item.value, qty:Number(f.qty.value||0), date:f.date.value, asg:f.asg.value, notes:f.notes.value});
+        toast('Updated','good'); hideModal(); drawSch();
+      };
+    }
+  };
+}
+
+/* ---------- Notice Board ---------- */
+function renderNotice(){
+  const s = Auth.getSession(); const isMgr = !!(s && s.role==='manager');
+  if($('#noticeForm')){
+    $('#noticeForm').onsubmit = (e)=>{
+      e.preventDefault(); const f = e.target.elements;
+      DataStore.upsert('notices',{
+        title: String(f.title.value||'').trim(),
+        body: String(f.body.value||'').trim(),
+        prio: f.prio.value,
+        date: f.date.value || todayStr(),
+        by: s?.fullName || s?.username || 'Manager'
+      });
+      toast('Notice posted','good'); e.target.reset(); drawN();
+    };
+  }
+  drawN();
+}
+function drawN(){
+  const s = Auth.getSession(); const isMgr = !!(s && s.role==='manager');
+  const list = DataStore.list('notices').sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b._updatedAt||0)-(a._updatedAt||0));
+  const wrap = $('#noticeList');
+  if(list.length===0){ wrap.innerHTML = `<div class="empty" style="grid-column:1/-1">No notices yet. Check back soon.</div>`; return; }
+  wrap.innerHTML = list.map(n=>`
+    <div class="card not notice-card prio-${n.prio==='high'?'high':n.prio==='med'?'med':'low'}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span class="pill ${n.prio==='high'?'bad':n.prio==='med'?'sky':'good'}">${n.prio==='high'?'PRIORITY HIGH':n.prio==='med'?'Normal':'Low'}</span>
+        <span class="pill slate">${escHtml(n.date||'')}</span>
+        <span style="margin-left:auto" class="muted fs-12">Posted by <b>${escHtml(n.by||'—')}</b></span>
+      </div>
+      <h3>${escHtml(n.title||'')}</h3>
+      <div style="white-space:pre-wrap;margin:6px 0 10px">${escHtml(n.body||'')}</div>
+      ${isMgr?`<div class="actions">
+        <button class="btn small ghost" data-edit="${n.id}">Edit</button>
+        <button class="btn small danger" data-del="${n.id}">Delete</button>
+      </div>`:''}
+    </div>`).join('');
+  wrap.onclick=(e)=>{
+    const del = e.target.closest('button[data-del]'); if(del){
+      if(confirm('Delete notice?')){ DataStore.remove('notices',del.dataset.del); toast('Deleted','warn'); drawN(); } return; }
+    const edit = e.target.closest('button[data-edit]'); if(edit){
+      const n = DataStore.get('notices',edit.dataset.edit); if(!n) return;
+      showModal({title:'Edit Notice', barClass:'not', html:`
+        <form id="editNForm">
+          <div class="row">
+            <div class="field" style="flex:2"><label>Title</label><input name="title" required value="${escHtml(n.title||'')}"/></div>
+            <div class="field"><label>Priority</label><select name="prio"><option value="low" ${n.prio==='low'?'selected':''}>Low</option><option value="med" ${n.prio==='med'?'selected':''}>Normal</option><option value="high" ${n.prio==='high'?'selected':''}>High</option></select></div>
+            <div class="field"><label>Date</label><input name="date" type="date" value="${n.date||''}"/></div>
+          </div>
+          <div class="field"><label>Body</label><textarea name="body" rows="4" required>${escHtml(n.body||'')}</textarea></div>
+          <div style="display:flex;gap:8px"><button class="btn orange" type="submit">Save</button><button type="button" class="btn ghost" id="editNCancel">Cancel</button></div>
+        </form>`});
+      $('#editNCancel').onclick=hideModal;
+      $('#editNForm').onsubmit=(e)=>{
+        e.preventDefault(); const f=e.target.elements;
+        DataStore.upsert('notices',{...n, title:f.title.value, body:f.body.value, prio:f.prio.value, date:f.date.value});
+        toast('Updated','good'); hideModal(); drawN();
+      };
+    }
+  };
+}
+
+/* ---------- Export & Share ---------- */
+function toCsv(rows){
+  const esc = (v)=>{
+    if(v==null) return '';
+    const s = String(v).replace(/"/g,'""');
+    return /[",\n\r]/.test(s)? '"'+s+'"' : s;
+  };
+  return '\uFEFF' + rows.map(r=>r.map(esc).join(',')).join('\r\n');
+}
+function download(filename, content, type='text/csv;charset=utf-8'){
+  const blob = new Blob([content], {type});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 250);
+  toast(filename+' downloaded','good');
+}
+function buildInventoryCsv(){
+  const cats = Object.fromEntries(DataStore.list('categories').map(c=>[c.id,c.name]));
+  const rows = [['Code','Name','Category','Rank','Opening Stock','Current Stock']];
+  DataStore.list('parts').sort((a,b)=>a.code.localeCompare(b.code)).forEach(p=>{
+    rows.push([p.code||'', p.name||'', cats[p.categoryId]||'Uncategorized', p.rank==null?'':p.rank, Number(p.openingStock||0), Number(p.stock ?? p.openingStock ?? 0)]);
+  });
+  return toCsv(rows);
+}
+function buildHistoryCsv(){
+  const rows = [['Timestamp','Part Code','Part Name','Operator','Direction','Qty','Remarks','By (Username)','Role']];
+  DataStore.list('stockHistory').sort((a,b)=>b.at-a.at).forEach(h=>{
+    rows.push([fmtDT(h.at), h.partCode||'', h.partName||'', h.operator||'', h.direction==='in'?'INWARD':'OUTWARD', Number(h.qty||0), h.remarks||'', h.by||'', h.role||'']);
+  });
+  return toCsv(rows);
+}
+function buildAttendanceCsv(){
+  const rows = [['Date','Person Type','Person','Punch In','Punch Out','Duration (min)','Status','Remarks']];
+  const sLab = DataStore.list('rosterLabour'); const sStf = DataStore.list('rosterStaff');
+  const mapL = Object.fromEntries(sLab.map(p=>[p.id,p.name]));
+  const mapS = Object.fromEntries(sStf.map(p=>[p.id,p.name]));
+  const attL = DataStore.list('attendanceLabour');
+  const attS = DataStore.list('attendanceStaff');
+  const push = (arr, type, map)=> arr.sort((a,b)=>(a.date||'').localeCompare(b.date||'')).forEach(a=>{
+    const nm = map[a.personId]||'Unknown';
+    const inT = a.inT? new Date(a.inT).toLocaleString():'';
+    const outT = a.outT? new Date(a.outT).toLocaleString():'';
+    const dur = (a.inT && a.outT)? Math.round(Math.max(0,(a.outT-a.inT)/60000)) : '';
+    rows.push([a.date||'', type, nm, inT, outT, dur, a.status||'Present', a.remarks||'']);
+  });
+  push(attL,'Labour',mapL); push(attS,'Staff',mapS);
+  return toCsv(rows);
+}
+function renderExport(){
+  const s = Auth.getSession();
+  $('#expInv').onclick=()=>{ download(`${s?.storeId||'store'}_Inventory_${todayStr()}.csv`, buildInventoryCsv()); };
+  $('#expHis').onclick=()=>{ download(`${s?.storeId||'store'}_StockHistory_${todayStr()}.csv`, buildHistoryCsv()); };
+  $('#expAtt').onclick=()=>{ download(`${s?.storeId||'store'}_Attendance_${todayStr()}.csv`, buildAttendanceCsv()); };
+  $('#expAll').onclick=()=>{
+    const sid = s?.storeId||'store'; const d = todayStr();
+    download(`${sid}_Inventory_${d}.csv`, buildInventoryCsv());
+    setTimeout(()=>download(`${sid}_StockHistory_${d}.csv`, buildHistoryCsv()), 250);
+    setTimeout(()=>download(`${sid}_Attendance_${d}.csv`, buildAttendanceCsv()), 500);
+  };
+  // Share
+  const url = new URL(location.href);
+  if(s?.storeId){ url.searchParams.set('store', s.storeId); }
+  const shareUrl = url.toString();
+  $('#shareLink').textContent = shareUrl;
+  $('#shareWA').onclick = ()=>{ window.open(`https://wa.me/?text=${encodeURIComponent('Aditi Stock Manager — Store ID: '+(s?.storeId||'')+'\nOpen app: '+shareUrl)}`,'_blank'); };
+  $('#shareNative').onclick = async ()=>{
+    if(!navigator.share){ toast('Native share not available — use Copy Link','warn'); return; }
+    try{ await navigator.share({title:'Aditi Stock Manager', text:'Sign in to Store: '+(s?.storeId||''), url:shareUrl}); toast('Shared','good'); }
+    catch(e){}
+  };
+  $('#shareCopy').onclick = async ()=>{
+    try{ await navigator.clipboard.writeText(shareUrl); toast('Link copied to clipboard','good'); }
+    catch(e){
+      const ta = document.createElement('textarea'); ta.value=shareUrl; document.body.appendChild(ta); ta.select();
+      try{ document.execCommand('copy'); toast('Link copied','good'); }catch(err){ toast('Copy failed','bad'); }
+      ta.remove();
+    }
+  };
+}
+// Top-bar Share button
+$('#btnShare').addEventListener('click', ()=>{ showTab('export'); toast('Opened Export & Share tab','info'); });
+
+/* ---------- Cross-tab sync via storage event ---------- */
+window.addEventListener('storage',(e)=>{
+  if(!e.key || !e.key.startsWith('ADITI:')) return;
+  // Refresh current tab content
+  if($('#app').style.display!=='none'){
+    toast('Synced changes from another window','good');
+    showTab(currentTab);
+  }else{
+    // Update store list on login screen
+    showAuth();
+  }
+});
+
+/* ---------- Boot ---------- */
+(function boot(){
+  // Always start with auth screen (no auto-login — critical requirement)
+  Auth.logout();
+  showAuth();
+  // If user opens to ?tab=requirement or ?tab=notice — allow jumping after auth (optional)
+})();
+</script>
+</body>
+</html>
